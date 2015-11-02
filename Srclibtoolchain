@@ -1,0 +1,37 @@
+{
+  "Tools": [
+    {
+      "Subcmd": "scan",
+      "Op": "scan",
+      "SourceUnitTypes": [
+        "ObjectiveC"
+      ]
+    },
+    {
+      "Subcmd": "graph",
+      "Op": "graph",
+      "SourceUnitTypes": [
+        "ObjectiveC"
+      ]
+    },
+    {
+      "Subcmd": "depresolve",
+      "Op": "depresolve",
+      "SourceUnitTypes": [
+        "ObjectiveC"
+      ]
+    }
+  ],
+  "Bundle": {
+    "Paths": [
+      "Srclibtoolchain",
+      ".bin",
+      ".bin/srclib-objc",
+      ".bin/srclib-objc.bat",
+      ".bin/srclib-objc.jar"
+    ],
+    "Commands": [
+      "make .bin/srclib-obj.jar"
+    ]
+  }
+}
