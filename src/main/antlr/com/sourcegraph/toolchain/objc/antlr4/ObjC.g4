@@ -379,7 +379,7 @@ parameter_declaration
   : declaration_specifiers (declarator? | abstract_declarator) ;
 
 initializer : assignment_expression
-	    | '{' initializer (',' initializer)* ','? '}' ;
+	    | '{' initializer? (',' initializer)* ','? '}' ;
 
 type_name : specifier_qualifier_list abstract_declarator 
           | block_type;
