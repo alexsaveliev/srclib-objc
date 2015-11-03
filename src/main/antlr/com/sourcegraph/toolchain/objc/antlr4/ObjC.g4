@@ -229,12 +229,11 @@ block_type:type_specifier '(''^' type_specifier? ')' block_parameters? ;
 // alexsaveliev: replaced IDENTIFIER with identifier
 type_specifier:
 'void' | 'char' | 'short' | 'int' | 'long' | 'float' | 'double' | 'signed' | 'unsigned' 
-	|	('id' ( protocol_reference_list )? )
-	|	(class_name ( protocol_reference_list )?)
-	|	struct_or_union_specifier
-	|	enum_specifier 
-	|	identifier
-    |   identifier pointer;
+	|	('id' ( protocol_reference_list )? '*'? )
+	|	(class_name ( protocol_reference_list )? '*'? )
+	|	struct_or_union_specifier '*'?
+	|	enum_specifier '*'?
+    |   identifier '*'?;
 
 type_qualifier:
 	'const' | 'volatile' | protocol_qualifier;

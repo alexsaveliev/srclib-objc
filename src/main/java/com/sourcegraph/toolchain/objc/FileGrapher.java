@@ -313,7 +313,8 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
                 fnCallCtx = messageSelectorContext.selector();
             }
             Ref fnCallRef = ref(fnCallCtx);
-            fnCallRef.defKey = new DefKey(null, messageKey);
+            // adding () to distinguish private members from properties
+            fnCallRef.defKey = new DefKey(null, messageKey + "()");
             emit(fnCallRef);
         }
     }
@@ -544,7 +545,8 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
 
         // property def
         Def propertyDef = def(structDeclaratorContext.declarator().direct_declarator(), "VAR");
-        propertyDef.defKey = new DefKey(null, currentClassName + '/' + propertyDef.name);
+        // adding () to distinguish from private members
+        propertyDef.defKey = new DefKey(null, currentClassName + '/' + propertyDef.name + "()");
         emit(propertyDef);
 
         // type refs
@@ -612,7 +614,8 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
             if (propertyKey != null) {
                 // ref to method
                 Ref propertyRef = ref(identifierContext.get(0));
-                propertyRef.defKey = new DefKey(null, propertyKey);
+                // adding () to distinguish private members from properties
+                propertyRef.defKey = new DefKey(null, propertyKey + "()");
                 emit(propertyRef);
             }
             return;
