@@ -41,18 +41,27 @@ IMPORT
 | INCLUDE;
 
 
+// alexsaveliev: added attribute_specifier_list?
 class_interface:
+    attribute_specifier_list?
 	'@interface'
+	attribute_specifier_list?
 	class_name (':' superclass_name)?
+	attribute_specifier_list?
 	protocol_reference_list?
 	instance_variables?
 	interface_declaration_list?
 	'@end';
 
+// alexsaveliev: added attribute_specifier_list?
 category_interface:
+    attribute_specifier_list?
 	'@interface'
+	attribute_specifier_list?
 	class_name '(' category_name? ')'
+	attribute_specifier_list?
 	protocol_reference_list?
+	attribute_specifier_list?
 	instance_variables?
 	interface_declaration_list?
 	'@end';
@@ -72,9 +81,12 @@ category_implementation:
 	( implementation_definition_list )?
 	)'@end';
 
+// alexsaveliev: added attribute_specifier_list?
 protocol_declaration:
+    attribute_specifier_list?
 	'@protocol'(
 	protocol_name ( protocol_reference_list )?
+	attribute_specifier_list?
 	interface_declaration_list? '@optional'? interface_declaration_list?
 	)'@end';
 
@@ -137,13 +149,13 @@ instance_variables
 //   A
 // @private
 //   B
-    |   '{' (visibility_specification struct_declaration+)* '}'
+    |   '{' (visibility_specification? struct_declaration+)* '}'
     |   '{' struct_declaration+ instance_variables '}'
     |   '{' visibility_specification struct_declaration+ instance_variables '}'
     ;
 
-visibility_specification:
-	'@private'
+visibility_specification
+	: '@private'
 	| '@protected'
 	| '@package' 
 	| '@public';
@@ -324,7 +336,8 @@ autorelease_statement:
 // alexsaveliev: added attribute_specifier_list?
 function_definition : attribute_specifier_list? declaration_specifiers? attribute_specifier_list? declarator attribute_specifier_list? compound_statement ;
 
-declaration : declaration_specifiers init_declarator_list? ';';
+// alexsaveliev: added attribute_specifier_list?
+declaration : attribute_specifier_list? declaration_specifiers attribute_specifier_list? init_declarator_list? ';';
 
 declaration_specifiers 
   : (arc_behaviour_specifier | storage_class_specifier | type_specifier | type_qualifier)+ ;
@@ -421,10 +434,14 @@ selection_statement
   : 'if' '(' expression ')' statement ('else' statement)?
   | 'switch' '(' expression ')' statement ;
 
-for_in_statement : 'for' '(' type_variable_declarator 'in' expression? ')' statement;
+for_in_statement : 'for' '(' for_in_type_variable_declarator 'in' expression? ')' statement;
 for_statement: 'for' '(' ((declaration_specifiers init_declarator_list) | expression)? ';' expression? ';' expression? ')' statement;
 while_statement: 'while' '(' expression ')' statement;
 do_statement: 'do' statement 'while' '(' expression ')' ';';
+
+for_in_type_variable_declarator:
+	declaration_specifiers? declarator;
+
 
 iteration_statement
   : while_statement
@@ -749,6 +766,7 @@ IntegerTypeSuffix
 
 FLOATING_POINT_LITERAL
     :   ('0'..'9')+ ('.' ('0'..'9')*)? Exponent? FloatTypeSuffix?
+    |   '.' ('0'..'9')+ Exponent? FloatTypeSuffix?
 	;
 
 fragment
