@@ -186,6 +186,7 @@ method_definition:
 
 method_selector
 	: selector
+	| 'retain'
 	| (keyword_declarator+ (parameter_list)? )
 	| (keyword_declarator+ (',' '...')? )
 	;
