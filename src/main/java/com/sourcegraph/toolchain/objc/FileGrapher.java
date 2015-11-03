@@ -264,7 +264,14 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
         if (messageKey != null) {
             ParserRuleContext fnCallCtx;
             if (messageSelectorContext.selector() == null) {
-                fnCallCtx = messageSelectorContext.keyword_argument(0).selector();
+                ObjCParser.Keyword_argumentContext keywordArgumentContext = messageSelectorContext.
+                        keyword_argument(0);
+                if (keywordArgumentContext != null) {
+                    fnCallCtx = keywordArgumentContext.selector();
+                } else {
+                    // [x retain]
+                    fnCallCtx = messageSelectorContext;
+                }
             } else {
                 fnCallCtx = messageSelectorContext.selector();
             }
@@ -962,7 +969,6 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
                     method_selector().keyword_declarator();
             if (!keywordDeclaratorContexts.isEmpty()) {
                 methodRef = ref(keywordDeclaratorContexts.get(0).selector());
-                // registering function arguments as variables
                 for (ObjCParser.Keyword_declaratorContext keywordDeclaratorContext : methodDefinitionContext.
                         method_selector().keyword_declarator()) {
                     ObjCParser.Method_typeContext methodTypeContext = keywordDeclaratorContext.method_type(0);

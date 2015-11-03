@@ -261,6 +261,7 @@ receiver:
 
 message_selector:
 	selector
+	| 'retain'
 	| keyword_argument+;
 
 keyword_argument:
