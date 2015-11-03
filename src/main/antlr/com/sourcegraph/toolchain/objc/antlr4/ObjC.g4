@@ -231,7 +231,7 @@ protocol_qualifier:
 
 // alexsaveliev: added string_literal
 primary_expression:
-	IDENTIFIER
+	identifier
 	| constant
 	| string_literal
 	| ('(' expression ')')
@@ -333,7 +333,7 @@ storage_class_specifier: 'auto' | 'register' | 'static' | 'extern' | 'typedef';
 init_declarator_list :	init_declarator (',' init_declarator)* ;
 init_declarator : declarator ('=' initializer)? ;
 
-struct_or_union_specifier: ('struct' | 'union') 
+struct_or_union_specifier: ('struct' | 'union')
   ( IDENTIFIER | IDENTIFIER? '{' struct_declaration+ '}') ;
 
 struct_declaration : specifier_qualifier_list struct_declarator_list ';' ;
@@ -540,9 +540,19 @@ string_literal : STRING_LITERAL ;
 // alexsaveliev: end of basic attributes support
 
 // alexsaveliev: self is allowed identifier name
+// alexsaveliev: predefined types are also allowed in some cases (va_arg(args, int))
 identifier
   : IDENTIFIER
-  | 'self' ;
+  | 'self'
+  | 'int'
+  | 'void'
+  | 'char'
+  | 'short'
+  | 'long'
+  | 'float'
+  | 'double'
+  | 'signed'
+  | 'unsigned';
 
 constant : DECIMAL_LITERAL | HEX_LITERAL | OCTAL_LITERAL | CHARACTER_LITERAL | FLOATING_POINT_LITERAL;
 

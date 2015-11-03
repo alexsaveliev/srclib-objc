@@ -560,7 +560,7 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
 
         ObjCParser.Primary_expressionContext primaryExpressionContext = ctx.primary_expression();
         String id = primaryExpressionContext.getText();
-        if (primaryExpressionContext.IDENTIFIER() == null &&
+        if (primaryExpressionContext.identifier() == null &&
                 !id.equals("self") &&
                 !id.equals("super")) {
             // we can't parse complex expressions yet
@@ -622,10 +622,10 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
 
     @Override
     public void enterPrimary_expression(ObjCParser.Primary_expressionContext ctx) {
-        if (ctx.IDENTIFIER() == null) {
+        if (ctx.identifier() == null) {
             return;
         }
-        String id = ctx.IDENTIFIER().getText();
+        String id = ctx.identifier().getText();
 
         // ref to variable?
         String key = null;
@@ -642,7 +642,7 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
                 key = id;
             }
         }
-        Ref varOrTypeRef = ref(ctx.IDENTIFIER());
+        Ref varOrTypeRef = ref(ctx.identifier());
         varOrTypeRef.defKey = new DefKey(null, key);
         emit(varOrTypeRef);
     }
