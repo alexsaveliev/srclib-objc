@@ -184,8 +184,10 @@ instance_method_definition:
 method_definition:
 	(method_type)? method_selector (init_declarator_list)? ';'? compound_statement;
 
-method_selector:
-	selector |(keyword_declarator+ (parameter_list)? )
+method_selector
+	: selector
+	| (keyword_declarator+ (parameter_list)? )
+	| (keyword_declarator+ (',' '...')? )
 	;
 
 keyword_declarator:
