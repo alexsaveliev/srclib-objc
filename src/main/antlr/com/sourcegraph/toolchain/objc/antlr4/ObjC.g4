@@ -230,21 +230,23 @@ protocol_qualifier:
 	'in' | 'out' | 'inout' | 'bycopy' | 'byref' | 'oneway';
 
 // alexsaveliev: added string_literal
+// alexsaveliev: added '@' identifier to support "return [foo bar:@baz]"
 primary_expression:
 	identifier
 	| constant
 	| string_literal
 	| ('(' expression ')')
 	| 'self'
-        | 'super'
+    | 'super'
 	| message_expression
 	| selector_expression
 	| protocol_expression
 	| encode_expression
-        | dictionary_expression
-        | array_expression
-        | box_expression
-        | block_expression;
+    | dictionary_expression
+    | array_expression
+    | box_expression
+    | block_expression
+    | '@' identifier;
 
 dictionary_pair:
          postfix_expression':'postfix_expression;
