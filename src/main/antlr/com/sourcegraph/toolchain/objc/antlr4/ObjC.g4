@@ -334,7 +334,7 @@ autorelease_statement:
 	'@autoreleasepool'  compound_statement;
 
 // alexsaveliev: added attribute_specifier_list?
-function_definition : attribute_specifier_list? declaration_specifiers? attribute_specifier_list? declarator attribute_specifier_list? compound_statement ;
+function_definition : attribute_specifier_list? declaration_specifiers? attribute_specifier_list? identifier ( '(' parameter_list? ')' )? attribute_specifier_list? compound_statement ;
 
 // alexsaveliev: added attribute_specifier_list?
 declaration : attribute_specifier_list? declaration_specifiers attribute_specifier_list? init_declarator_list? ';';

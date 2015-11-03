@@ -22,8 +22,8 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
 
     private static Logger LOGGER = LoggerFactory.getLogger(FileGrapher.class);
 
-    private static final String[] PREDEFINED_TYPES = new String[] {
-        "id", "void", "char", "short", "int", "long", "float", "double", "signed", "unsigned"
+    private static final String[] PREDEFINED_TYPES = new String[]{
+            "id", "void", "char", "short", "int", "long", "float", "double", "signed", "unsigned"
     };
 
     private ObjCGraph graph;
@@ -90,6 +90,31 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
     }
 
     @Override
+    public void enterCategory_implementation(ObjCParser.Category_implementationContext ctx) {
+
+        localVars.push(new HashMap<>());
+        currentClassName = ctx.class_name().getText();
+
+        Ref interfaceRef = ref(ctx.class_name());
+        interfaceRef.defKey = new DefKey(null, currentClassName);
+        emit(interfaceRef);
+
+        // registering "self" variable
+        Map<String, String> currentClassVars = graph.instanceVars.get(currentClassName);
+        if (currentClassVars == null) {
+            currentClassVars = new HashMap<>();
+            graph.instanceVars.put(currentClassName, currentClassVars);
+        }
+        currentClassVars.put("self", currentClassName);
+    }
+
+    @Override
+    public void exitCategory_implementation(ObjCParser.Category_implementationContext ctx) {
+        localVars.pop();
+        currentClassName = null;
+    }
+
+    @Override
     public void enterClass_method_definition(ObjCParser.Class_method_definitionContext ctx) {
         currentMethodName = getFuncName(ctx.method_definition().method_selector());
         localVars.push(new HashMap<>());
@@ -145,8 +170,14 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
                 Map<String, String> vars = null;
                 String defKey;
                 if (currentClassName == null) {
-                    vars = graph.globalVars;
-                    defKey = varDef.name;
+                    if (currentMethodName == null) {
+                        vars = graph.globalVars;
+                        defKey = varDef.name;
+                    } else {
+                        Var var = new Var(varDef.name, typeName);
+                        localVars.peek().put(varDef.name, var);
+                        defKey = var.defKey;
+                    }
                 } else {
                     if (currentMethodName == null) {
                         vars = graph.instanceVars.get(currentClassName);
@@ -193,8 +224,14 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
                     Map<String, String> vars = null;
                     String defKey;
                     if (currentClassName == null) {
-                        vars = graph.globalVars;
-                        defKey = varDef.name;
+                        if (currentMethodName == null) {
+                            vars = graph.globalVars;
+                            defKey = varDef.name;
+                        } else {
+                            Var var = new Var(varDef.name, typeName);
+                            localVars.peek().put(varDef.name, var);
+                            defKey = var.defKey;
+                        }
                     } else {
                         if (currentMethodName == null) {
                             vars = graph.instanceVars.get(currentClassName);
@@ -371,13 +408,6 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
         interfaceRef.defKey = new DefKey(null, interfaceName);
         emit(interfaceRef);
 
-        if (ctx.category_name() != null) {
-            Def categoryDef = def(ctx.category_name(), "CLASS");
-            categoryDef.defKey = new DefKey(null, categoryDef.name);
-            emit(categoryDef);
-            graph.types.add(categoryDef.name);
-        }
-
         currentClassName = interfaceName;
         Map<String, String> currentClassVars = graph.instanceVars.get(currentClassName);
         if (currentClassVars == null) {
@@ -452,11 +482,7 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
 
         blockCounter = 0;
 
-        ParserRuleContext ident = ident(ctx.declarator());
-        if (ident == null) {
-            return;
-        }
-        Def fnDef = def(ident, "METHOD");
+        Def fnDef = def(ctx.identifier(), "METHOD");
         fnDef.defKey = new DefKey(null, fnDef.name);
         emit(fnDef);
         graph.functions.add(fnDef.name);
@@ -471,62 +497,35 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
             }
         }
 
-        ObjCParser.Block_parametersContext blockParametersContext = ctx.declarator().direct_declarator().
-                block_parameters();
-        if (blockParametersContext != null) {
-
-            for (ObjCParser.Type_variable_declaratorContext typeVariableDeclaratorContext : blockParametersContext.
-                    type_variable_declarator()) {
-                String typeName = null;
-                for (ObjCParser.Type_specifierContext typeSpecifierContext : typeVariableDeclaratorContext.
-                        declaration_specifiers().type_specifier()) {
-                    String type = processTypeSpecifier(typeSpecifierContext);
-                    if (type != null) {
-                        typeName = type;
-                    }
-                }
-                Def argDef = def(ident(typeVariableDeclaratorContext.declarator()), "VAR");
-                argDef.defKey = new DefKey(null, currentDefKey(argDef.name));
-                emit(argDef);
-                paramsVars.put(argDef.name, typeName);
-            }
+        ObjCParser.Parameter_listContext parameterListContext = ctx.parameter_list();
+        if (parameterListContext == null) {
+            return;
         }
 
-        List<ObjCParser.Declarator_suffixContext> declaratorSuffixContexts = ctx.declarator().direct_declarator().
-                declarator_suffix();
-        if (declaratorSuffixContexts != null) {
-
-            for (ObjCParser.Declarator_suffixContext declaratorSuffixContext : declaratorSuffixContexts) {
-                ObjCParser.Parameter_listContext parameterListContext = declaratorSuffixContext.parameter_list();
-                if (parameterListContext == null) {
-                    continue;
-                }
-                for (ObjCParser.Parameter_declarationContext parameterDeclarationContext : parameterListContext.
-                        parameter_declaration_list().parameter_declaration()) {
-                    String typeName = null;
-                    for (ObjCParser.Type_specifierContext typeSpecifierContext : parameterDeclarationContext.
-                            declaration_specifiers().type_specifier()) {
-                        String type = processTypeSpecifier(typeSpecifierContext);
-                        if (type != null) {
-                            typeName = type;
-                        }
-                    }
-
-                    ident = ident(parameterDeclarationContext.declarator());
-                    if (ident == null) {
-                        List<ObjCParser.Type_specifierContext> typeSpecifierContexts = parameterDeclarationContext.
-                                declaration_specifiers().type_specifier();
-                        if (typeSpecifierContexts.isEmpty()) {
-                            return;
-                        }
-                        ident = typeSpecifierContexts.get(typeSpecifierContexts.size() - 1);
-                    }
-                    Def argDef = def(ident, "VAR");
-                    argDef.defKey = new DefKey(null, currentDefKey(argDef.name));
-                    emit(argDef);
-                    paramsVars.put(argDef.name, typeName);
+        for (ObjCParser.Parameter_declarationContext parameterDeclarationContext : parameterListContext.
+                parameter_declaration_list().parameter_declaration()) {
+            String typeName = null;
+            for (ObjCParser.Type_specifierContext typeSpecifierContext : parameterDeclarationContext.
+                    declaration_specifiers().type_specifier()) {
+                String type = processTypeSpecifier(typeSpecifierContext);
+                if (type != null) {
+                    typeName = type;
                 }
             }
+
+            ParserRuleContext ident = ident(parameterDeclarationContext.declarator());
+            if (ident == null) {
+                List<ObjCParser.Type_specifierContext> typeSpecifierContexts = parameterDeclarationContext.
+                        declaration_specifiers().type_specifier();
+                if (typeSpecifierContexts.isEmpty()) {
+                    return;
+                }
+                ident = typeSpecifierContexts.get(typeSpecifierContexts.size() - 1);
+            }
+            Def argDef = def(ident, "VAR");
+            argDef.defKey = new DefKey(null, currentDefKey(argDef.name));
+            emit(argDef);
+            paramsVars.put(argDef.name, typeName);
         }
 
     }
@@ -675,8 +674,14 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
             Map<String, String> vars = null;
             String defKey;
             if (currentClassName == null) {
-                vars = graph.globalVars;
-                defKey = enumeratorDef.name;
+                if (currentMethodName == null) {
+                    vars = graph.globalVars;
+                    defKey = enumeratorDef.name;
+                } else {
+                    Var var = new Var(enumeratorDef.name, typeName);
+                    localVars.peek().put(enumeratorDef.name, var);
+                    defKey = var.defKey;
+                }
             } else {
                 if (currentMethodName == null) {
                     vars = graph.instanceVars.get(currentClassName);
