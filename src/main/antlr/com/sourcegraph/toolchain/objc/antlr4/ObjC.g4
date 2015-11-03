@@ -235,7 +235,7 @@ protocol_qualifier:
 primary_expression:
 	identifier
 	| constant
-	| string_literal
+	| string_literal+
 	| ('(' expression ')')
 	| 'self'
     | 'super'
