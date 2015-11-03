@@ -68,37 +68,19 @@ public class Def {
 
         Def def = (Def) o;
 
-        if (defEnd != def.defEnd) return false;
-        if (defStart != def.defStart) return false;
-        if (identEnd != def.identEnd) return false;
-        if (identStart != def.identStart) return false;
-        if (defKey != null ? !defKey.equals(def.defKey) : def.defKey != null) return false;
-        if (doc != null ? !doc.equals(def.doc) : def.doc != null) return false;
-        if (file != null ? !file.equals(def.file) : def.file != null) return false;
-        if (kind != null ? !kind.equals(def.kind) : def.kind != null) return false;
-        if (modifiers != null ? !modifiers.equals(def.modifiers) : def.modifiers != null) return false;
-        if (name != null ? !name.equals(def.name) : def.name != null) return false;
-        if (pkg != null ? !pkg.equals(def.pkg) : def.pkg != null) return false;
-        if (typeExpr != null ? !typeExpr.equals(def.typeExpr) : def.typeExpr != null) return false;
+        // alexsaveliev: using only defKey to compare definitions because
+        // there may be cases when two _files_ may want to define the same object.
+        // for example, two C files may have main() function
+        return !(defKey != null ? !defKey.equals(def.defKey) : def.defKey != null);
 
-        return true;
     }
 
     @Override
     public int hashCode() {
-        int result = defKey != null ? defKey.hashCode() : 0;
-        result = 31 * result + (kind != null ? kind.hashCode() : 0);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (file != null ? file.hashCode() : 0);
-        result = 31 * result + identStart;
-        result = 31 * result + identEnd;
-        result = 31 * result + defStart;
-        result = 31 * result + defEnd;
-        result = 31 * result + (modifiers != null ? modifiers.hashCode() : 0);
-        result = 31 * result + (pkg != null ? pkg.hashCode() : 0);
-        result = 31 * result + (doc != null ? doc.hashCode() : 0);
-        result = 31 * result + (typeExpr != null ? typeExpr.hashCode() : 0);
-        return result;
+        // alexsaveliev: using only defKey to compare definitions because
+        // there may be cases when two _files_ may want to define the same object.
+        // for example, two C files may have main() function
+        return defKey != null ? defKey.hashCode() : 0;
     }
 
     /**

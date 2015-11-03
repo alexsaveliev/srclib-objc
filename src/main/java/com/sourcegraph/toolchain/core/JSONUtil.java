@@ -34,6 +34,7 @@ public class JSONUtil {
         gsonBuilder.disableHtmlEscaping();
         gsonBuilder.registerTypeAdapter(Def.class, new Def.JSONSerializer());
         gsonBuilder.registerTypeAdapter(Ref.class, new Ref.JSONSerializer());
+        gsonBuilder.registerTypeAdapter(GraphData.class, new GraphData.JSONSerializer());
         return gsonBuilder.create();
     }
 

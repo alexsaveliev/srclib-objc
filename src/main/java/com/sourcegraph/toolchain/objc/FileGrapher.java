@@ -892,7 +892,9 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
                 ObjCParser.SelectorContext sContext = declaratorCtx.selector();
                 if (sContext != null && sContext.IDENTIFIER() != null && !first) {
                     Def argDef = def(sContext, "VAR");
-                    argDef.defKey = new DefKey(null, key + '/' + sContext.IDENTIFIER().getText());
+                    // using /@ to distinguish parameter name from parameter prefix
+                    // in the following cases: "reuseIdentifier:(NSString *)reuseIdentifier"
+                    argDef.defKey = new DefKey(null, key + "/@" + sContext.IDENTIFIER().getText());
                     emit(argDef);
                 }
                 List<ObjCParser.Method_typeContext> methodTypeContexts = declaratorCtx.method_type();
