@@ -266,8 +266,11 @@ dictionary_pair:
 dictionary_expression:
         '@''{' dictionary_pair? (',' dictionary_pair)* ','? '}';
 
+// alexsaveliev: allowing cast expression insteaf of postfix expression
+// to support the following constructs
+ // "v = @[(id)[UIColor whiteColor].CGColor, (id)[CGTATestAppColorList tealColor].CGColor];"
 array_expression:
-        '@''[' postfix_expression? (',' postfix_expression)* ','? ']';
+        '@''[' cast_expression? (',' cast_expression)* ','? ']';
 
 box_expression:
         '@''('conditional_expression')' |
@@ -518,8 +521,14 @@ postfix_expression : primary_expression
   | '--'
   )* ;
 
+// alexsaveliev: replaced assignment_expression with new rule argument_expression
 argument_expression_list
-  : assignment_expression (',' assignment_expression)* ;
+  : argument_expression (',' argument_expression )* ;
+
+// alexsaveliev: identifier '*' supposed to support constructs such as "va_arg(args, char *)";
+argument_expression
+  : assignment_expression
+  | identifier '*' ;
 
 // alexsaveliev: basic attributes support
 attribute_specifier_list
