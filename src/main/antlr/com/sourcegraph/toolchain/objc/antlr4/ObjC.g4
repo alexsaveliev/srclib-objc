@@ -259,7 +259,7 @@ array_expression:
         '@''[' postfix_expression? (',' postfix_expression)* ','? ']';
 
 box_expression:
-        '@''('postfix_expression')' |
+        '@''('conditional_expression')' |
         '@'constant;
 block_parameters: '(' (type_variable_declarator | 'void')? (',' type_variable_declarator)* ')';
 
