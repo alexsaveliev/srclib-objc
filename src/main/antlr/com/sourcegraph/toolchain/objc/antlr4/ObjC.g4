@@ -213,14 +213,15 @@ property_synthesize_item
 
 block_type:type_specifier '(''^' type_specifier? ')' block_parameters? ;
 
+// alexsaveliev: replaced IDENTIFIER with identifier
 type_specifier:
 'void' | 'char' | 'short' | 'int' | 'long' | 'float' | 'double' | 'signed' | 'unsigned' 
 	|	('id' ( protocol_reference_list )? )
 	|	(class_name ( protocol_reference_list )?)
 	|	struct_or_union_specifier
 	|	enum_specifier 
-	|	IDENTIFIER
-    |   IDENTIFIER pointer;
+	|	identifier
+    |   identifier pointer;
 
 type_qualifier:
 	'const' | 'volatile' | protocol_qualifier;
@@ -538,7 +539,10 @@ attribute_parameter_assignment
 string_literal : STRING_LITERAL ;
 // alexsaveliev: end of basic attributes support
 
-identifier : IDENTIFIER;
+// alexsaveliev: self is allowed identifier name
+identifier
+  : IDENTIFIER
+  | 'self' ;
 
 constant : DECIMAL_LITERAL | HEX_LITERAL | OCTAL_LITERAL | CHARACTER_LITERAL | FLOATING_POINT_LITERAL;
 
@@ -780,9 +784,19 @@ LINE_COMMENT
     : '//' ~[\r\n]*  -> channel(HIDDEN)
     ;
 
+NEW_LINE
+    : ('\r'? '\n')
+    ;
+
+LINE_CONTINUE
+    : '\\' [ \t\u000C]* NEW_LINE -> channel(HIDDEN)
+    ;
+
 // ignore preprocessor defines for now
 
 HDEFINE : '#define' ~[\r\n]* -> channel(HIDDEN);
+// alexsaveliev: multiline define
+HMULTILINEDEFINE : '#define' (~[\r\n] | LINE_CONTINUE)* -> channel(HIDDEN);
 HIF : '#if' ~[\r\n]* -> channel(HIDDEN);
 // alexsaveliev: added #elif
 HELIF : '#elif' ~[\r\n]* -> channel(HIDDEN);

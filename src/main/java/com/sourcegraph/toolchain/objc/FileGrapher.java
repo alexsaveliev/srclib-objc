@@ -1037,11 +1037,12 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
             emit(typeRef);
             return classNameContext.getText();
         }
-        if (ctx.IDENTIFIER() != null && !isReservedSpecifier(ctx.IDENTIFIER().getText())) {
-            Ref typeRef = ref(ctx.IDENTIFIER());
-            typeRef.defKey = new DefKey(null, ctx.IDENTIFIER().getText());
+        ObjCParser.IdentifierContext identifierContext = ctx.identifier();
+        if (identifierContext != null && !isReservedSpecifier(identifierContext.getText())) {
+            Ref typeRef = ref(identifierContext);
+            typeRef.defKey = new DefKey(null, identifierContext.getText());
             emit(typeRef);
-            return ctx.IDENTIFIER().getText();
+            return identifierContext.getText();
         }
 
         String maybePredefined = ctx.getText();
