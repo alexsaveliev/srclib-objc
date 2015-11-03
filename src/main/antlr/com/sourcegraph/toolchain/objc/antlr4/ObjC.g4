@@ -816,7 +816,7 @@ LINE_COMMENT
     ;
 
 NEW_LINE
-    : ('\r'? '\n')
+    : ('\r'? '\n') -> channel(HIDDEN)
     ;
 
 LINE_CONTINUE
