@@ -128,7 +128,16 @@ protocol_name:
 
 instance_variables
     :   '{' struct_declaration* '}'
-    |   '{' visibility_specification struct_declaration+ '}'
+// alexsaveliev: replaced
+// '{' visibility_specification struct_declaration+ '}' with
+// with
+// '{' (visibility_specification struct_declaration+)* '}'
+// to add support of
+// @protected
+//   A
+// @private
+//   B
+    |   '{' (visibility_specification struct_declaration+)* '}'
     |   '{' struct_declaration+ instance_variables '}'
     |   '{' visibility_specification struct_declaration+ instance_variables '}'
     ;
