@@ -313,8 +313,7 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
                 fnCallCtx = messageSelectorContext.selector();
             }
             Ref fnCallRef = ref(fnCallCtx);
-            // adding () to distinguish private members from properties
-            fnCallRef.defKey = new DefKey(null, messageKey + "()");
+            fnCallRef.defKey = new DefKey(null, messageKey);
             emit(fnCallRef);
         }
     }
@@ -810,6 +809,27 @@ public class FileGrapher extends ObjCBaseListener implements ANTLRErrorListener 
         Ref typeRef = ref(typeNameContext);
         typeRef.defKey = new DefKey(null, typeNameContext.getText());
         emit(typeRef);
+    }
+
+    @Override
+    public void enterProperty_implementation(ObjCParser.Property_implementationContext ctx) {
+        List<ObjCParser.Property_synthesize_itemContext> items = ctx.property_synthesize_list().
+                property_synthesize_item();
+        if (items == null) {
+            return;
+        }
+        for (ObjCParser.Property_synthesize_itemContext item : items) {
+            TerminalNode prop = item.IDENTIFIER(0);
+            TerminalNode var = item.IDENTIFIER(1);
+            Ref propRef = ref(prop);
+            propRef.defKey = new DefKey(null, currentDefKey(prop.getText()) + "()");
+            emit(propRef);
+            if (var != null) {
+                Ref varRef = ref(var);
+                varRef.defKey = new DefKey(null, currentDefKey(var.getText()));
+                emit(varRef);
+            }
+        }
     }
 
     protected Def def(ParserRuleContext ctx, String kind) {
